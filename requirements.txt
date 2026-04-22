@@ -10,3 +10,6 @@ Pillow==10.4.0
 python-decouple==3.8
 django-extensions==3.2.3
 drf-nested-routers==0.93.5
+gunicorn==22.0.0
+dj-database-url==2.1.0
+whitenoise==6.7.0

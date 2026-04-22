@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from datetime import timedelta
 import environ
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -14,7 +15,7 @@ SECRET_KEY = env('SECRET_KEY', default='unsafe-secret-key-for-dev')
 
 DEBUG = env.bool('DEBUG', default=True)
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', '.render.com'])
 
 # Application definition
 
@@ -66,6 +67,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -100,19 +102,19 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': env('DB_ENGINE', default='django.db.backends.mysql'),
-        'NAME': env('DB_NAME', default='school_db'),
-        'USER': env('DB_USER', default='root'),
-        'PASSWORD': env('DB_PASSWORD', default=''),
-        'HOST': env('DB_HOST', default='localhost'),
-        'PORT': env('DB_PORT', default='3306'),
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            'charset': 'utf8mb4',
-        }
-    }
+    'default': env.db('DATABASE_URL', default=f"mysql://{env('DB_USER', default='root')}:{env('DB_PASSWORD', default='')}@{env('DB_HOST', default='localhost')}:{env('DB_PORT', default='3306')}/{env('DB_NAME', default='school_db')}")
 }
+
+# If using dj-database-url directly (useful for Render)
+db_from_env = dj_database_url.config(conn_max_age=600)
+DATABASES['default'].update(db_from_env)
+
+# Ensure MySQL options are preserved if not using dj-database-url connection string
+if DATABASES['default']['ENGINE'] == 'django.db.backends.mysql':
+    DATABASES['default']['OPTIONS'] = {
+        'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        'charset': 'utf8mb4',
+    }
 
 # Custom User Model
 AUTH_USER_MODEL = 'authentication.CustomUser'
@@ -147,7 +149,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = env('MEDIA_URL', default='/media/')
 MEDIA_ROOT = os.path.join(BASE_DIR, env('MEDIA_ROOT', default='media/'))
@@ -208,3 +211,6 @@ EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
 EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='noreply@qendilschool.com')
+
+# CSRF Trusted Origins for Render
+CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS', default=['http://localhost:3000', 'https://*.render.com'])
