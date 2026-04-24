@@ -4,7 +4,16 @@ Welcome to the full documentation of the Qendil School Management System. This g
 
 ---
 
-## 1. Getting Started: Authentication & Registration
+## 1. API Exploration & Documentation
+
+The system comes with built-in interactive API documentation using Swagger. This allows you to explore all available endpoints, see required parameters, and even test requests directly from the browser.
+
+- **Swagger UI**: `/api/docs/`
+- **API Schema**: `/api/schema/`
+
+---
+
+## 2. Getting Started: Authentication & Registration
 
 The system uses a secure authentication system based on JWT (JSON Web Tokens).
 
@@ -18,8 +27,29 @@ The system uses a secure authentication system based on JWT (JSON Web Tokens).
 
 ### Login & Security
 - **Secure Login**: Use your email/username and password to obtain an access token.
+- **JWT Tokens**: Upon successful login, the system returns an `access` and `refresh` token.
+    - `access`: Used for authenticating requests (shorter lifespan).
+    - `refresh`: Used to obtain a new access token when it expires.
+- **How to Use Tokens**: For every authenticated request, include the access token in the header:
+    ```http
+    Authorization: Bearer <your_access_token>
+    ```
 - **Profile Management**: Once logged in, users can view and update their profile information (name, phone, avatar).
 - **Password Recovery**: If you forget your password, use the "Forgot Password" feature to receive a reset link via email.
+
+---
+
+## 2. Dashboard Access
+
+After logging in, you can access your role-specific dashboard. Based on your role, you should navigate to:
+
+- **Admin Dashboard**: `/api/v1/dashboard/admin/`
+- **Teacher Dashboard**: `/api/v1/dashboard/teacher/`
+- **Student Dashboard**: `/api/v1/dashboard/student/`
+- **Parent Dashboard**: `/api/v1/dashboard/parent/`
+- **Accountant Dashboard**: `/api/v1/dashboard/accountant/`
+
+These dashboards provide a summary of relevant statistics and quick actions.
 
 ---
 
