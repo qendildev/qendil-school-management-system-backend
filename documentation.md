@@ -4,16 +4,45 @@ Welcome to the full documentation of the Qendil School Management System. This g
 
 ---
 
-## 1. API Exploration & Documentation
+## 1. Developer & Testing Tools
 
-The system comes with built-in interactive API documentation using Swagger. This allows you to explore all available endpoints, see required parameters, and even test requests directly from the browser.
+To explore and test the API, the frontend team can use the following built-in and external tools:
 
-- **Swagger UI**: `/api/docs/`
-- **API Schema**: `/api/schema/`
+### Interactive API Documentation (Swagger)
+The system comes with built-in interactive API documentation. This allows you to explore all available endpoints, see required parameters, and test requests directly.
+- **Swagger UI**: `http://localhost:8000/api/docs/`
+- **API Schema**: `http://localhost:8000/api/schema/`
+
+### Testing with Postman / Insomnia
+For testing outside of Swagger:
+1.  **Authorization**: Set the type to `Bearer Token`.
+2.  **Token**: Paste the `access` token received from the login endpoint.
+3.  **Headers**: Ensure `Content-Type: application/json` is set.
 
 ---
 
-## 2. Getting Started: Authentication & Registration
+## 2. Frontend Integration Guide (JWT Authentication)
+
+The system uses JSON Web Tokens (JWT) for secure authentication. 
+
+### Authentication Flow
+1.  **Login**: Send a `POST` request to `/api/v1/auth/login/` with `email` (or `username`) and `password`.
+2.  **Tokens**: On success, the backend returns:
+    - `access`: Short-lived token for authenticated requests.
+    - `refresh`: Longer-lived token to regenerate the access token.
+3.  **Storage**: The frontend should store these tokens (e.g., in `localStorage`, `sessionStorage`, or secure HttpOnly cookies).
+4.  **Authenticated Requests**: For every subsequent request to a protected endpoint (e.g., dashboard, profiles), include the access token in the header:
+    ```http
+    Authorization: Bearer <your_access_token>
+    ```
+
+### Handling Token Expiration
+- If a request returns a **401 Unauthorized** error, it means the `access` token has expired.
+- Use the `refresh` token to call `/api/v1/auth/token/refresh/` to get a new `access` token without forcing the user to log in again.
+
+---
+
+## 3. Getting Started: Registration & Roles
 
 The system uses a secure authentication system based on JWT (JSON Web Tokens).
 
