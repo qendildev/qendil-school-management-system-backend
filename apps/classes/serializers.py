@@ -10,10 +10,27 @@ class SectionSerializer(serializers.ModelSerializer):
 
 class ClassSerializer(serializers.ModelSerializer):
     sections = SectionSerializer(many=True, read_only=True)
+    grade = serializers.IntegerField(source='numeric_name', required=False, allow_null=True)
+    capacity = serializers.IntegerField(write_only=True, required=False, default=30)
 
     class Meta:
         model = Class
-        fields = ('id', 'name', 'numeric_name', 'description', 'sections', 'created_at', 'updated_at')
+        fields = ('id', 'name', 'grade', 'numeric_name', 'description', 'sections', 'capacity', 'created_at', 'updated_at')
+        extra_kwargs = {
+            'numeric_name': {'required': False, 'allow_null': True}
+        }
+
+    def create(self, validated_data):
+        capacity = validated_data.pop('capacity', 30)
+        class_obj = super().create(validated_data)
+        
+        # Automatically create a default Section A for the new class
+        Section.objects.create(
+            class_name=class_obj,
+            name="A",
+            capacity=capacity
+        )
+        return class_obj
 
 class ClassTeacherSerializer(serializers.ModelSerializer):
     teacher_details = StaffProfileSerializer(source='teacher', read_only=True)
