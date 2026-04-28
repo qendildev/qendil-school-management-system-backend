@@ -10,8 +10,8 @@ To explore and test the API, the frontend team can use the following built-in an
 
 ### Interactive API Documentation (Swagger)
 The system comes with built-in interactive API documentation. This allows you to explore all available endpoints, see required parameters, and test requests directly.
-- **Swagger UI**: `http://localhost:8000/api/docs/`
-- **API Schema**: `http://localhost:8000/api/schema/`
+- **Swagger UI**: `https://qendil-backend.onrender.com/api/docs/`
+- **API Schema**: `https://qendil-backend.onrender.com/api/schema/`
 
 ### Testing with Postman / Insomnia
 For testing outside of Swagger:
