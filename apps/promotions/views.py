@@ -23,9 +23,28 @@ class PromotionViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='eligible-students')
     def eligible_students(self, request):
-        # Placeholder for logic to find students eligible for promotion
-        # e.g. those in a specific class/section who passed exams
-        return Response({"detail": "Logic for eligible students pending."})
+        class_id = request.query_params.get('class_id')
+        section_id = request.query_params.get('section_id')
+        academic_year_id = request.query_params.get('academic_year_id')
+        
+        if not class_id or not academic_year_id:
+            return Response({"error": "class_id and academic_year_id are required."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        students = StudentProfile.objects.filter(
+            current_class_id=class_id,
+            academic_year_id=academic_year_id
+        )
+        if section_id:
+            students = students.filter(current_section_id=section_id)
+            
+        # Optional: Filter out students who already have a promotion record for the target year
+        # to_year_id = request.query_params.get('to_academic_year_id')
+        # if to_year_id:
+        #    ...
+            
+        from apps.students.serializers import StudentProfileSerializer
+        serializer = StudentProfileSerializer(students, many=True)
+        return Response(serializer.data)
 
     @action(detail=False, methods=['post'], url_path='bulk-promote')
     def bulk_promote(self, request):
